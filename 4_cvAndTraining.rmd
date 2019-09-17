@@ -1,0 +1,47 @@
+---
+title: "Using Cross Validation and Training a CART model"
+output: html_notebook
+---
+```{r}
+train.tokens.df = cbind(Label = training$Label, data.frame(train.tokens.dfm))
+names(train.tokens.df)[c(146,148,235,238)]
+names(train.tokens.df) <- make.names(names(train.tokens.df))
+```
+
+```{r}
+set.seed(48743)
+
+cv.folds = createMultiFolds(training$Label, k = 10 , times = 3)
+cv.cntrl = trainControl(method = "repeatedcv",number = 10,
+                        repeats = 3, index = cv.folds)
+```
+
+```{r}
+require(doSNOW)
+
+start.time = Sys.time()
+
+#Create a cluster to work on cores
+cl = makeCluster(2, type = "SOCK")
+registerDoSNOW(cl)
+```
+
+
+```{r}
+rpart.cv.1 = train(Label ~., data = train.tokens.df, method = "rpart",
+                   trControl = cv.cntrl, tuneLength = 7)
+```
+
+```{r}
+stopCluster(cl)
+```
+
+```{r}
+total.time = Sys.time() - start.time
+total.time
+```
+
+```{r}
+rpart.cv.1
+```
+

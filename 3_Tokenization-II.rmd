@@ -1,0 +1,58 @@
+---
+title: "Continuing with tokenization"
+output: html_notebook
+---
+```{r}
+term.frequency = function(row){row/sum(row)}
+```
+
+```{r}
+inverse.doc.freq <- function(col) {
+  corpus.size = length(col)
+  doc.count = length(which(col>0))
+  log10(corpus.size/doc.count)
+}
+```
+
+```{r}
+tf.idf = function(tf, idf){
+  tf*idf
+}
+```
+
+```{r}
+train.tokens.df = apply(train.tokens.matrix,1,term.frequency)
+dim(train.tokens.df)
+View(train.tokens.df[1:10,1:10])
+
+```
+
+```{r}
+train.tokens.idf = apply(train.tokens.matrix,2,inverse.doc.freq)
+glimpse(train.tokens.idf)
+```
+```{r}
+train.tokens.tf_idf = apply(train.tokens.df,2,tf.idf,
+                            idf = train.tokens.idf)
+glimpse(train.tokens.idf)
+```
+```{r}
+train.tokens.tf_idf = t(train.tokens.tf_idf)
+View(train.tokens.tf_idf)
+```
+
+```{r}
+incomplete.cases = which(!complete.cases(train.tokens.tf_idf))
+training$Text[incomplete.cases]
+```
+```{r}
+train.tokens.tf_idf[incomplete.cases,] = rep(0.0,ncol(train.tokens.tf_idf))
+dim(train.tokens.tf_idf)
+sum(which(!complete.cases(train.tokens.tf_idf)))
+```
+```{r}
+train.tokens.tf_idf.df = cbind(Label = training$Label, 
+                               data.frame(train.tokens.tf_idf))
+names(train.tokens.tf_idf.df) = make.names(names(train.tokens.tf_idf.df))
+```
+

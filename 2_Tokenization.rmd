@@ -1,0 +1,52 @@
+---
+title: "Tokenization of Text Data"
+output: html_notebook
+---
+
+```{r}
+source("source.R")
+```
+
+```{r}
+#Plot of ham, spam
+g
+```
+
+```{r}
+set.seed(32984)
+
+#train = sample_frac(spam.raw, 0.7)
+#test = anti_join(spam.raw, train)
+
+set.seed(32984)
+
+spam.raw_1 = spam.raw[1:2500,]
+
+index = createDataPartition(spam.raw_1$Label, p = 0.7, times = 1,list = F)
+training = spam.raw_1[index,]
+testing = spam.raw_1[-index,]
+```
+
+Tokenization: Decomposition of textual document into pieces called tokens
+Document-Frequency Matrix
+
+```{r}
+require(quanteda)
+
+train.tokens = tokens(training$Text, what = "word", remove_numbers = T,
+                      remove_punct = T, remove_symbols = T,
+                      remove_hyphens = T)%>% 
+                      tokens_tolower() %>%
+                      tokens_select(stopwords(), selection = "remove") %>%
+                      tokens_wordstem(language = "english")
+train.tokens[[35]]
+```
+
+Create a bag of words model
+
+```{r}
+train.tokens.dfm = dfm(train.tokens, tolower = F)
+train.tokens.matrix = as.matrix(train.tokens.dfm)
+
+```
+

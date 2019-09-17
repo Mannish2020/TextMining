@@ -1,0 +1,38 @@
+---
+title: "Final"
+output: html_notebook
+---
+
+```{r}
+set.seed(48743)
+
+cv.folds = createMultiFolds(training$Label, k = 10 , times = 3)
+cv.cntrl = trainControl(method = "repeatedcv",number = 10,
+                        repeats = 3, index = cv.folds)
+```
+
+```{r}
+start.time = Sys.time()
+
+#Create a cluster to work on cores
+cl = makeCluster(2, type = "SOCK")
+registerDoSNOW(cl)
+```
+
+```{r}
+rpart.cv.2 = train(Label ~., data = train.tokens.tf_idf.df,
+                   method = "rpart", trControl = cv.cntrl, tuneLength =7)
+```
+
+```{r}
+stopCluster(cl)
+```
+
+```{r}
+Sys.time() - start.time
+```
+
+```{r}
+rpart.cv.2
+```
+
